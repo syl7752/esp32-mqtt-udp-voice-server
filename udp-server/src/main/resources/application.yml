@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: udp-server
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+udp:
+  port: ${UDP_PORT:8888}
+  worker-threads: ${UDP_WORKER_THREADS:1}
+
+audio:
+  sample-rate: ${AUDIO_SAMPLE_RATE:24000}
+  frame-duration-ms: ${AUDIO_FRAME_DURATION_MS:60}
+  opus-bitrate: ${AUDIO_OPUS_BITRATE:32000}
+
+vad:
+  model-path: ${SILERO_VAD_MODEL:models/silero_vad.onnx}
+  threshold: ${VAD_THRESHOLD:0.5}
+  silence-ms: ${VAD_SILENCE_MS:700}
+  max-utterance-seconds: ${VAD_MAX_UTTERANCE_SECONDS:20}
+
+funasr:
+  transcription-url: ${FUNASR_TRANSCRIPTION_URL:http://127.0.0.1:8000/v1/audio/transcriptions}
+  model: ${FUNASR_MODEL:fun-asr-nano}
+  language: ${FUNASR_LANGUAGE:zh}
+
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  responses-url: ${OPENAI_RESPONSES_URL:https://api.openai.com/v1/responses}
+  model: ${OPENAI_MODEL:gpt-5.6}
+  instructions: ${OPENAI_INSTRUCTIONS:你是一个简洁、友好的语音助手。请用适合朗读的短句回答。}
+
+index-tts:
+  speech-url: ${INDEX_TTS_SPEECH_URL:http://127.0.0.1:6006/audio/speech}
+  model: ${INDEX_TTS_MODEL:index-tts}
+  voice: ${INDEX_TTS_VOICE:default}
+
+logging:
+  level:
+    io.github.esp32voice: INFO
+

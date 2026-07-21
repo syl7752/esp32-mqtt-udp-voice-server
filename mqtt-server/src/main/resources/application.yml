@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: mqtt-server
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+mqtt:
+  url: ${MQTT_URL:tcp://127.0.0.1:1883}
+  username: ${MQTT_USERNAME:}
+  password: ${MQTT_PASSWORD:}
+  up-topic: ${MQTT_UP_TOPIC:devices/+/up}
+  down-topic: ${MQTT_DOWN_TOPIC:devices/%s/down}
+  subscriber-id: ${MQTT_SUBSCRIBER_ID:esp32-voice-mqtt-sub}
+  publisher-id: ${MQTT_PUBLISHER_ID:esp32-voice-mqtt-pub}
+
+voice:
+  udp-public-host: ${UDP_PUBLIC_HOST:127.0.0.1}
+  udp-port: ${UDP_PORT:8888}
+  session-ttl-seconds: ${SESSION_TTL_SECONDS:1800}
+
+logging:
+  level:
+    io.github.esp32voice: INFO
+

@@ -60,27 +60,43 @@ public class VoicePipeline {
 
     private void process(String sessionId, long generation, byte[] pcm16k,
                          BiConsumer<Long, byte[]> reply) {
+        boolean failed = false;
         try {
+            log.info("Starting ASR for session {}", sessionId);
             String transcript = asr.transcribe(audio.pcm16ToWav(pcm16k, 16000));
             if (transcript.isBlank() || !isCurrent(sessionId, generation)) {
+                log.info("ASR returned no usable result for session {}", sessionId);
                 return;
             }
+            log.info("ASR completed for session {}, {} characters", sessionId, transcript.length());
             publish(Map.of("type", "stt", "sessionId", sessionId, "text", transcript));
+            log.info("Starting OpenAI response for session {}", sessionId);
             String response = llm.respond(transcript);
             if (response.isBlank() || !isCurrent(sessionId, generation)) {
+                log.info("OpenAI returned no usable result for session {}", sessionId);
                 return;
             }
+            log.info("OpenAI response completed for session {}, {} characters", sessionId, response.length());
             publish(Map.of("type", "tts", "sessionId", sessionId, "state", "start"));
+            log.info("Starting TTS for session {}", sessionId);
             byte[] wav = tts.synthesize(response);
             if (!isCurrent(sessionId, generation)) {
                 return;
             }
-            reply.accept(generation, audio.wavToMonoPcm(wav, 24000));
+            byte[] pcm24k = audio.wavToMonoPcm(wav, 24000);
+            log.info("TTS completed for session {}, audio duration {} ms",
+                    sessionId, pcm24k.length * 1000L / (24000 * 2));
+            reply.accept(generation, pcm24k);
         } catch (Exception e) {
+            failed = true;
             log.warn("Voice pipeline failed for session {}: {}", sessionId, e.getMessage());
         } finally {
             if (isCurrent(sessionId, generation)) {
                 publish(Map.of("type", "tts", "sessionId", sessionId, "state", "stop"));
+                if (failed) {
+                    publish(Map.of("type", "goodbye", "sessionId", sessionId,
+                            "session_id", sessionId));
+                }
             }
         }
     }
@@ -98,4 +114,3 @@ public class VoicePipeline {
         executor.shutdownNow();
     }
 }
-

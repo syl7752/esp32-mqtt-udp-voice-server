@@ -9,7 +9,12 @@ services:
     image: emqx/emqx:5.8.6
     environment:
       EMQX_ALLOW_ANONYMOUS: "true"
+      EMQX_AUTO_SUBSCRIBE__TOPICS: '[{"topic":"devices/$${clientid}/down","qos":1,"rh":0,"rap":0,"nl":0}]'
     ports:
       - "1883:1883"
       - "18083:18083"
+    volumes:
+      - emqx-data:/opt/emqx/data
 
+volumes:
+  emqx-data:

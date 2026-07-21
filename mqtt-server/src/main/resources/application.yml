@@ -7,14 +7,27 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
 
+server:
+  port: ${HTTP_PORT:8081}
+  servlet:
+    context-path: ${HTTP_CONTEXT_PATH:/mqtt/api}
+
 mqtt:
   url: ${MQTT_URL:tcp://127.0.0.1:1883}
+  public-endpoint: ${MQTT_PUBLIC_ENDPOINT:127.0.0.1:1883}
   username: ${MQTT_USERNAME:}
   password: ${MQTT_PASSWORD:}
   up-topic: ${MQTT_UP_TOPIC:devices/+/up}
+  device-up-topic: ${MQTT_DEVICE_UP_TOPIC:devices/%s/up}
   down-topic: ${MQTT_DOWN_TOPIC:devices/%s/down}
   subscriber-id: ${MQTT_SUBSCRIBER_ID:esp32-voice-mqtt-sub}
   publisher-id: ${MQTT_PUBLISHER_ID:esp32-voice-mqtt-pub}
+
+ota:
+  client-id-prefix: ${OTA_CLIENT_ID_PREFIX:esp32-voice-}
+  keepalive: ${OTA_MQTT_KEEPALIVE:60}
+  firmware-version: ${OTA_FIRMWARE_VERSION:}
+  firmware-url: ${OTA_FIRMWARE_URL:}
 
 voice:
   udp-public-host: ${UDP_PUBLIC_HOST:127.0.0.1}
@@ -24,4 +37,3 @@ voice:
 logging:
   level:
     io.github.esp32voice: INFO
-

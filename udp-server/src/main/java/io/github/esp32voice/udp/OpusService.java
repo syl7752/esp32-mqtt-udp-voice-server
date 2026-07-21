@@ -3,6 +3,7 @@ package io.github.esp32voice.udp;
 import io.github.jaredmdobson.concentus.OpusApplication;
 import io.github.jaredmdobson.concentus.OpusDecoder;
 import io.github.jaredmdobson.concentus.OpusEncoder;
+import io.github.jaredmdobson.concentus.OpusSignal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +55,10 @@ public class OpusService {
             try {
                 OpusEncoder value = new OpusEncoder(sampleRate, 1, OpusApplication.OPUS_APPLICATION_AUDIO);
                 value.setBitrate(bitrate);
+                value.setComplexity(8);
+                value.setPacketLossPercent(10);
+                value.setForceChannels(1);
+                value.setSignalType(OpusSignal.OPUS_SIGNAL_VOICE);
                 return value;
             } catch (Exception e) {
                 throw new IllegalStateException(e);

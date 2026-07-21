@@ -10,7 +10,6 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
@@ -52,7 +51,7 @@ public class MqttConfiguration {
     }
 
     @Bean
-    IntegrationFlow mqttInboundFlow(
+    MqttPahoMessageDrivenChannelAdapter mqttInbound(
             MqttPahoClientFactory factory,
             @Qualifier("mqttInboundChannel") MessageChannel mqttInboundChannel,
             @Value("${mqtt.subscriber-id}") String clientId,
@@ -62,7 +61,7 @@ public class MqttConfiguration {
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
         adapter.setOutputChannel(mqttInboundChannel);
-        return IntegrationFlow.from(adapter).channel(mqttInboundChannel).get();
+        return adapter;
     }
 
     @Bean

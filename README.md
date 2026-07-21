@@ -34,6 +34,15 @@ ESP32 <====== AES-CTR + Opus UDP =====> udp-server
 2. 按 [FunASR](https://github.com/modelscope/FunASR) 文档自行部署服务。本项目调用其 Whisper 兼容接口 `POST /v1/audio/transcriptions`。
 3. 按 [Index-TTS-vLLM](https://github.com/Ksuriuri/index-tts-vllm) 文档自行部署并注册 voice。本项目调用 `POST /audio/speech`。
 
+默认 LLM 配置调用 OpenAI Responses API。对于只兼容 OpenAI Chat Completions 的服务，改用：
+
+```dotenv
+OPENAI_API_MODE=chat-completions
+OPENAI_API_URL=https://open.bigmodel.cn/api/paas/v4/chat/completions
+OPENAI_MODEL=glm-4.5-flash
+OPENAI_THINKING=disabled
+```
+
 使用任何模型前，请自行阅读并接受该模型对应的许可证。Index-TTS 代码许可证与模型许可证并不相同。
 
 ## 启动
@@ -43,6 +52,8 @@ ESP32 <====== AES-CTR + Opus UDP =====> udp-server
 ```bash
 docker compose up -d
 ```
+
+示例 EMQX 会在设备连接时自动订阅 `devices/${clientid}/down`，用于兼容不会主动发送 MQTT `SUBSCRIBE` 的 ESP32 固件。该设置属于 EMQX Auto Subscribe，不是 Topic Rewrite。EMQX 动态配置保存在 `emqx-data` 数据卷中；不要使用 `docker compose down -v`，除非确实要清空管理密码和 Broker 配置。
 
 准备配置：
 
@@ -67,6 +78,15 @@ java -jar udp-server/target/udp-server-0.1.0-SNAPSHOT.jar
 ```
 
 `UDP_PUBLIC_HOST` 必须是 ESP32 能访问的 UDP 服务地址，不能保留默认的 `127.0.0.1`。
+`MQTT_PUBLIC_ENDPOINT` 同样必须是 ESP32 能访问的 MQTT 地址，例如 `192.168.1.10:1883`。
+
+ESP32 的 OTA 配置地址设置为：
+
+```text
+http://192.168.1.10:8081/mqtt/api/device/ota
+```
+
+OTA 接口返回 MQTT 连接参数。设备连接 MQTT 并发送 `hello` 后，`hello` 响应再返回 UDP 地址和加密参数。
 
 ## MQTT 主题
 
@@ -99,4 +119,3 @@ java -jar udp-server/target/udp-server-0.1.0-SNAPSHOT.jar
 ## License
 
 本仓库代码采用 Apache-2.0。第三方软件和模型适用各自许可证，见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-

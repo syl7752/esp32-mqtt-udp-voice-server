@@ -27,8 +27,14 @@ public class VoiceControlListener implements MessageListener {
             JsonNode event = json.readTree(new String(message.getBody(), StandardCharsets.UTF_8));
             String sessionId = event.path("sessionId").asText();
             switch (event.path("type").asText()) {
-                case "abort" -> handler.abort(sessionId);
-                case "disconnect" -> handler.remove(sessionId);
+                case "abort" -> {
+                    log.info("Received abort control for session {}", sessionId);
+                    handler.abort(sessionId);
+                }
+                case "disconnect" -> {
+                    log.info("Received disconnect control for session {}", sessionId);
+                    handler.remove(sessionId);
+                }
                 default -> { }
             }
         } catch (Exception e) {
@@ -36,4 +42,3 @@ public class VoiceControlListener implements MessageListener {
         }
     }
 }
-
